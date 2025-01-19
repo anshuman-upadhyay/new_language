@@ -1,24 +1,23 @@
 // polish notation : an arithmetic notation where the operator comes before the operand 
 //eg: 1+2+3 : +1 2 3 or 6+(2*9) : + 6 (* 2 9)
 #include "mpc/mpc.h"
-
 #ifdef _WIN32
 static char buffer[2048];
 char *readline(char* prompt){
-    fputs(prompt,stdout);
-    fgets(buffer,2048,stdin);
-    char *cpy =malloc(strlen(buffer)+1);
-    cpy[strlen(cpy)-1]='\0';
+    fputs(prompt, stdout);
+    fgets(buffer, 2048, stdin);
+    char *cpy = malloc(strlen(buffer) + 1);
+    strcpy(cpy, buffer);  // Copy the buffer correctly
+    cpy[strlen(cpy) - 1] = '\0';
     return cpy;
 }
-void add_history(char * unused){}
- 
+void add_history(char *unused) {}
 
 #else
-
 #include<editline/readline.h>
 #include<editline/history.h>
 #endif
+
 
 
 int main(int argc , char ** argv){
