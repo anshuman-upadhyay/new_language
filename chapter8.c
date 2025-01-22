@@ -28,7 +28,15 @@ typedef struct{
     int err;
 }lval;
 
-//Create a new number type lval
+// for this sinario a union will be more effecitve kyuki eak time pe ya to type ,num,ya err me se eak hi jayega
+//equilvalent union
+// typedef union{
+//     long num;
+//     long type;
+//     int err;
+// }lval;
+
+//Create a new number type lval in a function jiska returntype lval hai
 lval lval_num(long x){
     lval v;
     v.type=LVAL_NUM;
@@ -36,7 +44,7 @@ lval lval_num(long x){
     return v;
 }
 
-//Create a new error type lval
+//Create a new error type lval in a function jo lval type return karega
 lval lval_err(int x){
     lval v;
     v.type= LVAL_ERR;
@@ -89,6 +97,7 @@ lval eval_op(lval x,char* op, lval y){
             ? lval_err(LERR_DIV_ZERO)
             :lval_num(x.num/y.num);
     }
+    if(strcmp(op,"%")==0){ return lval_num(x.num%y.num);}// modulo operation to get the remainder
     return lval_err(LERR_BAD_OP);
 }
 lval eval(mpc_ast_t* t){
@@ -119,7 +128,7 @@ int main(int argc,char ** argv){
     mpca_lang(MPCA_LANG_DEFAULT,
     "\
     number : /-?[0-9]+/;\
-    operator: '+'|'-'|'*'|'/';\
+    operator: '+'|'-'|'*'|'/'|'%';\
     expr : <number> |'(' <operator><expr>+ ')';\
     lispy : /^/ <operator> <expr> +/$/;\
     ",
