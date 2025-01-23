@@ -141,16 +141,18 @@ void lval_print(lval* v){
 }
 
 void lval_println(lval* v){ lval_print(v); putchar('\n');}
-
+// Macro: Preprocessor statements that are evaluated before the code is compiled
+//here LASSERT is a macro
 #define LASSERT(args,cond,err)\
     if(!(cond)) {lval_del(args);return lval_err(err);}
 
 lval* lval_eval(lval* v);
+//Takes one or more arguments and returns a new Q Exp containing args
 lval* builtin_list(lval* a){
     a->type=LVAL_QEXPR;
     return a;
 }
-
+// takes a Q-exp and returns a Q-exp with only of the first element
 lval* builtin_head(lval* a){
     LASSERT(a,a->count==1,
     "Function 'head' passed too many arguments. ");
@@ -165,7 +167,7 @@ lval* builtin_head(lval* a){
     }
     return v;
 }
-
+//takes a Qexp and returns a Qexp with the first element removed
 lval* builtin_tail(lval* a){
     LASSERT(a,a->count==1,
     "Function 'tail' passed too many arguments.");
@@ -177,7 +179,7 @@ lval* builtin_tail(lval* a){
     lval_del(lval_pop(v,0));
     return v;
 }
-
+// takes a Q exp and evaluates it as if it were a S exp
 lval* builtin_eval(lval*a){
     LASSERT(a,a->count==1,"Function 'eval' passed too many arguments.");
     LASSERT(a,a->cell[0]->type==LVAL_QEXPR,"Function 'eval' passed incorrect type");
@@ -185,7 +187,7 @@ lval* builtin_eval(lval*a){
     x->type= LVAL_SEXPR;
     return lval_eval(x);
 }
-
+//takes one or more Qexp and returns a Qexpression of them conjoined together
 lval* builtin_join(lval* a){
     for(int i =0;i<a->count;i++){
         LASSERT(a,a->cell[i]->type==LVAL_QEXPR,"Function 'join' passed incorrect type");
@@ -197,6 +199,7 @@ lval* builtin_join(lval* a){
     lval_del(a);
     return x;
 }
+
 
 lval* builtin_op(lval* a,char* op){
     for(int i=0;i<a->count;i++){
@@ -212,6 +215,8 @@ lval* builtin_op(lval* a,char* op){
         if(strcmp(op,"+")==0){ x->num += y->num;}
         if(strcmp(op,"-")==0){ x->num -= y->num;}
         if(strcmp(op,"*")==0){ x->num *= y->num;}
+        if(strcmp(op,"%")==0){ x->num = x->num % y->num;}
+
         if(strcmp(op,"/")==0){
             if(y->num==0){
                 lval_del(x);lval_del(y);
@@ -276,7 +281,7 @@ lval* lval_read(mpc_ast_t* t){
     lval* x= NULL;
     if(strcmp(t->tag,">")==0){ x=lval_sexpr();}
     if(strstr(t->tag,"sexpr")){ x=lval_sexpr();}
-    if(strstr(t->tag,"qexpr")){ x=lval_sexpr();}
+    if(strstr(t->tag,"qexpr")){ x=lval_qexpr();}
 
     for(int i =0;i<t->children_num;i++){
         if(strcmp(t->children[i]->contents,"(")==0){continue;}
@@ -297,14 +302,14 @@ int main(int argc,char** argv){
     mpc_parser_t* Expr=mpc_new("expr");
     mpc_parser_t* Lispy=mpc_new("lispy");
     mpca_lang(MPCA_LANG_DEFAULT,
-    "\
-    number : /-?[0-9]+/;\
-    symbol: \"list\"|\"head\"|\"tail\"|\"eval\"\
-            |\"join\"|'+'|'-'|'*'|'/';\
-    sexpr:'('<expr>* ')';\
-    qexpr : '{' <expr>* '}';\
-    expr: <number>| <symbol>|<sexpr>| <qexpr>;\
-    lispy: /^/ <expr>* /$/;\
+    "                                               \
+    number : /-?[0-9]+/;                            \
+    symbol: \"list\"|\"head\"|\"tail\"|\"eval\"     \
+            |\"join\"|'+'|'-'|'*'|'/'|'%' ;        \
+    sexpr:'('<expr>* ')';                           \
+    qexpr : '{' <expr>* '}';                        \
+    expr: <number>| <symbol>|<sexpr>| <qexpr>;      \
+    lispy: /^/ <expr>* /$/;                         \
     ",
     Number,Symbol,Sexpr,Qexpr,Expr,Lispy);
 
