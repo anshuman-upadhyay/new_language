@@ -1070,9 +1070,3 @@ int main(int argc,char** argv){
     mpc_cleanup(8,Number,Symbol,String,Comment,Sexpr,Qexpr,Expr,Lispy);
     return 0;
 }
-
-
-//use load '<filenaem.type> to bring the actions of outside files 
-// examplw of hello.lspy should be used 
-// uss me print command ke saath hello world likha hai jo execution ke time pe
-// lisp ke print funtion ko call karke print karata hai

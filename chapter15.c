@@ -1002,6 +1002,7 @@ lval* lval_read(mpc_ast_t* t){
 
 
 int main(int argc,char** argv){
+    // create parsers 
      Number=mpc_new("number");
      Symbol=mpc_new("symbol");
      String=mpc_new("string");
@@ -1010,6 +1011,7 @@ int main(int argc,char** argv){
      Qexpr=mpc_new("qexpr");
      Expr=mpc_new("expr");
      Lispy=mpc_new("lispy");
+     //Define them with the language they follow
     mpca_lang(MPCA_LANG_DEFAULT,
     "                                               \
     number : /-?[0-9]+/;                            \
@@ -1023,12 +1025,26 @@ int main(int argc,char** argv){
     lispy: /^/ <expr>* /$/;                         \
     ",
     Number,Symbol,String,Comment,Sexpr,Qexpr,Expr,Lispy);
+
+    // create Enviornment
+
     lenv* e=lenv_new();
     lenv_add_builtins(e);
-    //Interactivr prompt
+
+    //load the standard library
+    lval* stdlib_load= builtin_load(e,lval_add(lval_sexpr(),lval_str("stdlib.lspy")));
+    if(stdlib_load->type ==LVAL_ERR){
+        printf("Error loading standard library:\n");
+        lval_println(stdlib_load);
+    }
+    lval_del(stdlib_load);
+
+
+    //Interactive prompt
     if(argc==1){
-    puts("Lispy Version 0.0.0.1.0");
-    puts("Press Ctrl+c to Exit\n");
+         puts("Lispy Version 0.0.0.1.1");
+         puts("Welcome to the lisp coded but not created by Anshuman");
+         puts("Press Ctrl+c to Exit\n");
 
 
 
@@ -1070,9 +1086,3 @@ int main(int argc,char** argv){
     mpc_cleanup(8,Number,Symbol,String,Comment,Sexpr,Qexpr,Expr,Lispy);
     return 0;
 }
-
-
-//use load '<filenaem.type> to bring the actions of outside files 
-// examplw of hello.lspy should be used 
-// uss me print command ke saath hello world likha hai jo execution ke time pe
-// lisp ke print funtion ko call karke print karata hai
